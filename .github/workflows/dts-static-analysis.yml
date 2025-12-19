@@ -1,0 +1,171 @@
+name: DTS static analysis
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "**/*.dts"
+      - "**/*.dtsi"
+
+jobs:
+  compliance_job:
+    runs-on: ubuntu-24.04
+    name: DTS Nordic boards static analysis
+    steps:
+    - name: Update PATH for west
+      run: |
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Checkout sources
+      uses: nrfconnect/action-checkout-west-update@main
+      with:
+        git-fetch-depth: 0
+        git-ref: ${{ github.event.pull_request.head.sha }}
+        rebase: true
+
+    - name: Setup Node.js
+      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+      with:
+        node-version: "lts/*"
+
+    - name: Install dts-linter
+      run: |
+        npm install -g dts-linter@beta
+
+    - name: Resolve Affected Boards
+      id: resolve
+      shell: bash
+      run: |
+        # Determine input files
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] && [[ -n "${{ github.event.inputs.files }}" ]]; then
+          echo "Source: Manual Input"
+          TOUCHED_FILES="${{ github.event.inputs.files }}"
+        elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+         echo "Source: Git Diff"
+         TOUCHED_FILES=$(git -C ncs diff --name-only origin/${{ github.base_ref }} HEAD \
+          | grep -E '\.dts(i)?$' || true)
+        else
+          echo "Source: Full Scan"
+          TOUCHED_FILES=""
+        fi
+
+        echo "Files: $TOUCHED_FILES"
+
+        # 2. If no specific files, find all and exit step
+        if [[ -z "$TOUCHED_FILES" ]]; then
+          find . -type f -path "*/boards/**/*.dts" | sort > dts_files.txt
+          echo "Targeting all $(wc -l < dts_files.txt) boards."
+        else
+          echo "Determining effected boards"
+          # 3. BFS Dependency Logic
+          INDEX_FILE=$(mktemp)
+          trap 'rm -f "$INDEX_FILE"' EXIT
+
+          echo "🚀 Indexing repository inclusions..."
+          grep -rE --include="*.dts*" "#include" . | \
+              sed -E 's|([^:]+):#include[[:space:]]+[<"]([^">]*/)?([^">]+)[>"]|\3:\1|' > "$INDEX_FILE"
+
+          echo "📊 Total inclusion mappings found: $(wc -l < "$INDEX_FILE")"
+
+          VISITED=()
+          QUEUE=()
+          # 1. Fill the queue without checking if the file exists in the root
+          for f in $TOUCHED_FILES; do
+             echo "Adding to Queue: $f"
+             QUEUE+=("$f")
+          done
+
+          contains_element() {
+            local e match="$1"; shift
+            for e in ${@+"$@"}; do [[ "$e" == "$match" ]] && return 0; done
+            return 1
+          }
+
+          # 2. BFS Logic
+          while [[ ${#QUEUE[@]} -gt 0 ]]; do
+            CURRENT="${QUEUE[0]}"
+            QUEUE=("${QUEUE[@]:1}")
+            
+            if contains_element "$CURRENT" ${VISITED[@]+"${VISITED[@]}"}; then continue; fi
+            VISITED+=("$CURRENT")
+            
+            # Extract basename so that "path/to/file.dtsi" becomes "file.dtsi"
+            # This matches the left side of your INDEX_FILE
+            BASENAME=$(basename "$CURRENT")
+
+            while IFS= read -r entry; do
+              PARENT="${entry#*:}"
+              if [[ -n "$PARENT" ]] && ! contains_element "$PARENT" ${VISITED[@]+"${VISITED[@]}"}; then
+                QUEUE+=("$PARENT")
+              fi
+            done < <(grep "^${BASENAME}:" "$INDEX_FILE" || true)
+          done
+
+          # 3. Final Filter
+          # Let's check for any .dts file under a 'boards' directory
+          for f in ${VISITED[@]+"${VISITED[@]}"}; do
+            if [[ "$f" =~ \.dts$ ]] && [[ "$f" == *"boards"* ]]; then
+              echo "$f"
+            fi
+          done | sort -u > dts_files.txt
+          
+          echo "✅ Done. Found $(wc -l < dts_files.txt) board files."
+        fi
+
+    - name: Run dts-linter
+      run: |
+        if [ ! -s dts_files.txt ]; then
+          echo "No relevant DTS files found for analysis."
+          exit 0
+        fi
+
+        files=()
+        while IFS= read -r file; do
+          [ -f "$file" ] && files+=( "--file" "$file" )
+        done < dts_files.txt
+
+        set -x
+        dts-linter \
+          --diagnosticsFull "${files[@]}" \
+          --include ./dts \
+          --include ./dts/arc \
+          --include ./dts/arm \
+          --include ./dts/arm64/ \
+          --include ./dts/riscv \
+          --include ./dts/rx  \
+          --include ./dts/sparc \
+          --include ./dts/common \
+          --include ./dts/vendor \
+          --include ./include \
+          --include ./include/zephyr \
+          --include ./dts/x86 \
+          --include ./dts/xtensa \
+          --include ../modules/hal/stm32/dts \
+          --include ../modules/hal/nxp/dts \
+          --include ../modules/hal/atmel/include/ \
+          --include ../modules/hal/ti/dts \
+          --include ../modules/hal/bouffalolab/include \
+          --include ../modules/hal/ambiq/dts \
+          --include ../modules/hal/microchip/include \
+          --include ../modules/hal/microchip/dts \
+          --include ../modules/hal/nuvoton/dts \
+          --include ../modules/hal/gigadevice/include \
+          --binding ./dts/bindings \
+          --include ./include/zephyr \
+          --include ./ncs/zephyr/dts \
+          --include ./ncs/zephyr/dts/arm \
+          --include ./ncs/zephyr/dts/arm64 \
+          --include ./ncs/zephyr/dts/riscv \
+          --include ./ncs/zephyr/dts/common \
+          --include ./ncs/zephyr/dts/vendor \
+          --include ./ncs/zephyr/include \
+          --include ./ncs/zephyr/include/zephyr \
+          --binding ./ncs/zephyr/dts/bindings \
+          --include ./ncs/nrf/dts \
+          --include ./ncs/nrf/dts/arm \
+          --include ./ncs/nrf/dts/arm64/ \
+          --include ./ncs/nrf/dts/riscv \
+          --include ./ncs/nrf/dts/common \
+          --include ./ncs/nrf/dts/vendor  \
+          --binding ./ncs/nrf/dts/bindings
+
