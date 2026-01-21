@@ -35,11 +35,7 @@ LOG_MODULE_REGISTER(nrf_cloud_pgps, CONFIG_NRF_CLOUD_GPS_LOG_LEVEL);
 #define DOWNLOAD_PROTOCOL "https://"
 #define PGPS_DEBUG	  0 /* set to 1 for extra logging */
 
-#if defined(CONFIG_NRF_CLOUD_PGPS_PREDICTION_PERIOD_120_MIN)
-#define PREDICTION_PERIOD 120
-#else
 #define PREDICTION_PERIOD 240
-#endif
 #define REPLACEMENT_THRESHOLD	      CONFIG_NRF_CLOUD_PGPS_REPLACEMENT_THRESHOLD
 #define FRAGMENT_SIZE		      CONFIG_NRF_CLOUD_PGPS_DOWNLOAD_FRAGMENT_SIZE
 #define PREDICTION_MIDPOINT_SHIFT_SEC (120 * SEC_PER_MIN)
@@ -119,7 +115,6 @@ static void cache_pgps_header(const struct nrf_cloud_pgps_header *header);
 static int consume_pgps_data(uint8_t pnum, const char *buf, size_t buf_len);
 static void prediction_work_handler(struct k_work *work);
 static void prediction_timer_handler(struct k_timer *dummy);
-static bool prediction_timer_is_running(void);
 void agnss_print_enable(bool enable);
 static void print_time_details(const char *info, int64_t sec, uint16_t day, uint32_t time_of_day);
 
@@ -467,7 +462,6 @@ int nrf_cloud_pgps_notify_prediction(void)
 	 */
 	int err;
 	int pnum;
-	struct nrf_modem_gnss_agnss_data_frame processed;
 	struct nrf_cloud_pgps_prediction *prediction = NULL;
 	struct nrf_cloud_pgps_event evt = {
 		.type = PGPS_EVT_AVAILABLE,
@@ -478,15 +472,6 @@ int nrf_cloud_pgps_notify_prediction(void)
 		return -EINVAL;
 	}
 
-	nrf_cloud_agnss_processed(&processed);
-
-	/* If the prediction timer is running and a prediction has already been injected,
-	 * there's no need to find the next prediction yet.
-	 */
-	if (prediction_timer_is_running() && processed.system[0].sv_mask_ephe != 0) {
-		LOG_INF("Not time to find next prediction yet.");
-		return 0;
-	}
 	LOG_DBG("num_predictions:%d, replacement threshold:%d", NUM_PREDICTIONS,
 		REPLACEMENT_THRESHOLD);
 
@@ -494,6 +479,7 @@ int nrf_cloud_pgps_notify_prediction(void)
 	err = nrf_cloud_pgps_find_prediction(&prediction);
 	if (err == -ELOADING) {
 		loading_in_progress = true;
+		notified = false;
 		err = 0;
 	} else if (err < 0) {
 		if (!loading_in_progress) {
@@ -567,11 +553,6 @@ static void start_expiration_timer(int pnum, int64_t cur_gps_sec)
 	} else {
 		LOG_ERR("Cannot start prediction expiration timer; delta = %d", (int32_t)delta);
 	}
-}
-
-static bool prediction_timer_is_running(void)
-{
-	return k_timer_remaining_ticks(&prediction_timer) > 0;
 }
 
 static void print_time_details(const char *info, int64_t sec, uint16_t day, uint32_t time_of_day)

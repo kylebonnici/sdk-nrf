@@ -53,6 +53,7 @@ bluetooth:
     - nrf/cmake/
     - nrf/drivers/mpsl/
     - nrf/include/bluetooth/
+    - nrf/modules/memfault-firmware-sdk/
     - nrf/samples/bluetooth/
     - nrf/subsys/bluetooth/
     - nrf/subsys/mpsl/
@@ -401,7 +402,8 @@ ci_samples_cellular:
     - modules/lib/hostap/
     - modules/lib/nrf_wifi/
     - modules/lib/zcbor/
-    - nrf/boards/nordic/
+    - nrf/boards/nordic/thingy91/
+    - nrf/boards/nordic/thingy91x/
     - nrf/cmake/
     - nrf/drivers/hw_cc3xx/
     - nrf/ext/curl/
@@ -451,7 +453,9 @@ ci_samples_cellular:
     - nrfxlib/crypto/
     - nrfxlib/nrf_modem/
     - nrfxlib/nrf_wifi/
-    - zephyr/boards/nordic/
+    - zephyr/boards/nordic/nrf9151dk/
+    - zephyr/boards/nordic/nrf9160dk/
+    - zephyr/boards/nordic/nrf9161dk/
     - zephyr/cmake/
     - zephyr/drivers/bluetooth/
     - zephyr/drivers/console/
@@ -465,7 +469,7 @@ ci_samples_cellular:
     - zephyr/modules/hostap/
     - zephyr/modules/nrf_wifi/
     - zephyr/share/
-    - zephyr/soc/nordic/
+    - zephyr/soc/nordic/nrf91/
     - zephyr/subsys/bluetooth/
     - zephyr/subsys/dfu/
     - zephyr/subsys/fs/
@@ -677,7 +681,10 @@ ci_applications_nrf_desktop:
     - modules/lib/zcbor/
     - nrf/applications/ipc_radio/
     - nrf/applications/nrf_desktop/
-    - nrf/boards/
+    - nrf/boards/nordic/common/
+    - nrf/boards/nordic/nrf52*
+    - nrf/boards/nordic/nrf54*
+    - nrf/boards/shields/nrf21540ek/
     - nrf/cmake/
     - nrf/drivers/mpsl/
     - nrf/drivers/sensor/paw3212/
@@ -687,6 +694,8 @@ ci_applications_nrf_desktop:
     - nrf/include/caf/
     - nrf/include/sensor/
     - nrf/scripts/hid_configurator/
+    - nrf/soc/nordic/common/
+    - nrf/soc/nordic/nrf54*
     - nrf/subsys/app_event_manager/
     - nrf/subsys/bluetooth/
     - nrf/subsys/bootloader/
@@ -700,7 +709,9 @@ ci_applications_nrf_desktop:
     - nrfxlib/crypto/
     - nrfxlib/mpsl/
     - nrfxlib/softdevice_controller/
-    - zephyr/boards/nordic/
+    - zephyr/boards/nordic/nrf52*
+    - zephyr/boards/nordic/nrf53*
+    - zephyr/boards/nordic/nrf54*
     - zephyr/cmake/
     - zephyr/drivers/bluetooth/
     - zephyr/drivers/entropy/
@@ -708,7 +719,10 @@ ci_applications_nrf_desktop:
     - zephyr/drivers/usb/
     - zephyr/include/zephyr/bluetooth/
     - zephyr/share/
-    - zephyr/soc/nordic/
+    - zephyr/soc/nordic/common/
+    - zephyr/soc/nordic/nrf52*
+    - zephyr/soc/nordic/nrf53*
+    - zephyr/soc/nordic/nrf54*
     - zephyr/subsys/bluetooth/
     - zephyr/subsys/dfu/
     - zephyr/subsys/fs/
@@ -1634,6 +1648,11 @@ ci_samples_zephyr_drivers_mbox:
   files:
     - nrf/samples/zephyr/drivers/mbox/
     - zephyr/samples/drivers/mbox/
+
+ci_samples_zephyr_boards_nordic_nrfx:
+  files:
+    - nrf/samples/zephyr/boards/nordic/nrfx/
+    - zephyr/samples/boards/nordic/nrfx/
 
 ci_samples_zephyr_boards_nordic_spis_wakeup:
   files:

@@ -11,7 +11,7 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/shell/shell.h>
-#include <getopt.h>
+#include <zephyr/sys/sys_getopt.h>
 
 #include "nrfx.h"
 #include "desh_print.h"
@@ -156,36 +156,37 @@ static const char dect_phy_perf_cmd_usage_str[] =
 	"                                                    Default: 4.\n";
 
 /* Specifying the expected options (both long and short): */
-static struct option long_options_perf[] = {
-	{"client", no_argument, 0, 'c'},
-	{"server", no_argument, 0, 's'},
-	{"use_harq", no_argument, 0, 'a'},
-	{"debug", no_argument, 0, 'd'},
-	{"duration", required_argument, 0, 't'},
-	{"rx_exp_rssi_level", required_argument, 0, 'e'},
-	{"s_tx_id", required_argument, 0, DECT_SHELL_PERF_DEST_SERVER_TX_ID},
-	{"channel", required_argument, 0, DECT_SHELL_PERF_CHANNEL},
-	{"c_slots", required_argument, 0, DECT_SHELL_PERF_SLOT_COUNT},
-	{"c_gap_slots", required_argument, 0, DECT_SHELL_PERF_SLOT_GAP_COUNT},
-	{"c_gap_subslots", required_argument, 0, DECT_SHELL_PERF_SUBSLOT_GAP_COUNT},
-	{"c_harq_feedback_rx_subslots", required_argument, 0,
+static struct sys_getopt_option long_options_perf[] = {
+	{"client", sys_getopt_no_argument, 0, 'c'},
+	{"server", sys_getopt_no_argument, 0, 's'},
+	{"use_harq", sys_getopt_no_argument, 0, 'a'},
+	{"debug", sys_getopt_no_argument, 0, 'd'},
+	{"duration", sys_getopt_required_argument, 0, 't'},
+	{"rx_exp_rssi_level", sys_getopt_required_argument, 0, 'e'},
+	{"s_tx_id", sys_getopt_required_argument, 0, DECT_SHELL_PERF_DEST_SERVER_TX_ID},
+	{"channel", sys_getopt_required_argument, 0, DECT_SHELL_PERF_CHANNEL},
+	{"c_slots", sys_getopt_required_argument, 0, DECT_SHELL_PERF_SLOT_COUNT},
+	{"c_gap_slots", sys_getopt_required_argument, 0, DECT_SHELL_PERF_SLOT_GAP_COUNT},
+	{"c_gap_subslots", sys_getopt_required_argument, 0, DECT_SHELL_PERF_SUBSLOT_GAP_COUNT},
+	{"c_harq_feedback_rx_subslots", sys_getopt_required_argument, 0,
 	 DECT_SHELL_PERF_SUBSLOT_COUNT_HARQ_FEEDBACK_RX},
-	{"c_harq_feedback_rx_delay_subslots", required_argument, 0,
+	{"c_harq_feedback_rx_delay_subslots", sys_getopt_required_argument, 0,
 	 DECT_SHELL_PERF_SUBSLOT_COUNT_HARQ_FEEDBACK_RX_DELAY_SLOT_COUNT},
-	{"c_harq_process_nbr_max", required_argument, 0,
+	{"c_harq_process_nbr_max", sys_getopt_required_argument, 0,
 	 DECT_SHELL_PERF_DECT_HARQ_CLIENT_PROCESS_MAX_NBR},
-	{"s_harq_feedback_tx_delay_subslots", required_argument, 0,
+	{"s_harq_feedback_tx_delay_subslots", sys_getopt_required_argument, 0,
 	 DECT_SHELL_PERF_SLOT_COUNT_HARQ_FEEDBACK_TX_DELAY_SUBSLOT_COUNT},
-	{"s_harq_feedback_tx_rx_delay_subslots", required_argument, 0,
+	{"s_harq_feedback_tx_rx_delay_subslots", sys_getopt_required_argument, 0,
 	 DECT_SHELL_PERF_SLOT_COUNT_HARQ_FEEDBACK_TX_RX_DELAY_SUBSLOT_COUNT},
-	{"mdm_init_harq_process_count", required_argument, 0,
+	{"mdm_init_harq_process_count", sys_getopt_required_argument, 0,
 	 DECT_SHELL_PERF_HARQ_MDM_PROCESS_COUNT},
-	{"mdm_init_harq_expiry_time_us", required_argument, 0,
+	{"mdm_init_harq_expiry_time_us", sys_getopt_required_argument, 0,
 	 DECT_SHELL_PERF_HARQ_MDM_EXPIRY_TIME},
-	{"c_tx_pwr", required_argument, 0, DECT_SHELL_PERF_TX_PWR},
-	{"c_tx_mcs", required_argument, 0, DECT_SHELL_PERF_TX_MCS},
-	{"c_tx_lbt_period", required_argument, 0, DECT_SHELL_PERF_TX_LBT_PERIOD },
-	{"c_tx_lbt_busy_th", required_argument, 0, DECT_SHELL_PERF_TX_LBT_RSSI_BUSY_THRESHOLD },
+	{"c_tx_pwr", sys_getopt_required_argument, 0, DECT_SHELL_PERF_TX_PWR},
+	{"c_tx_mcs", sys_getopt_required_argument, 0, DECT_SHELL_PERF_TX_MCS},
+	{"c_tx_lbt_period", sys_getopt_required_argument, 0, DECT_SHELL_PERF_TX_LBT_PERIOD },
+	{"c_tx_lbt_busy_th", sys_getopt_required_argument, 0,
+	 DECT_SHELL_PERF_TX_LBT_RSSI_BUSY_THRESHOLD },
 	{0, 0, 0, 0}};
 
 static int dect_phy_perf_cmd(const struct shell *shell, size_t argc, char **argv)
@@ -201,8 +202,7 @@ static int dect_phy_perf_cmd(const struct shell *shell, size_t argc, char **argv
 		goto show_usage;
 	}
 
-	optreset = 1;
-	optind = 1;
+	sys_getopt_init();
 
 	if (argv[1] != NULL && !strcmp(argv[1], "stop")) {
 		desh_print("Perf command stopping.");
@@ -236,7 +236,8 @@ static int dect_phy_perf_cmd(const struct shell *shell, size_t argc, char **argv
 		current_settings->harq.harq_feedback_tx_delay_subslot_count;
 	params.server_harq_feedback_tx_rx_delay_subslot_count = 4;
 
-	while ((opt = getopt_long(argc, argv, "e:t:csadh", long_options_perf, &long_index)) != -1) {
+	while ((opt = sys_getopt_long(argc, argv, "e:t:csadh", long_options_perf,
+		&long_index)) != -1) {
 		switch (opt) {
 		case 'd': {
 			params.debugs = true;
@@ -255,23 +256,23 @@ static int dect_phy_perf_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case 't': {
-			params.duration_secs = atoi(optarg);
+			params.duration_secs = atoi(sys_getopt_optarg);
 			break;
 		}
 		case 'e': {
-			params.expected_rx_rssi_level = atoi(optarg);
+			params.expected_rx_rssi_level = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PERF_DEST_SERVER_TX_ID: {
-			params.destination_transmitter_id = atoi(optarg);
+			params.destination_transmitter_id = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PERF_TX_PWR: {
-			params.tx_power_dbm = atoi(optarg);
+			params.tx_power_dbm = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PERF_TX_LBT_PERIOD: {
-			temp = atoi(optarg);
+			temp = atoi(sys_getopt_optarg);
 			if (temp < DECT_PHY_LBT_PERIOD_MIN_SYM ||
 				temp > DECT_PHY_LBT_PERIOD_MAX_SYM) {
 				desh_error("Invalid LBT period %d (range: [%d,%d])",
@@ -284,7 +285,7 @@ static int dect_phy_perf_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case DECT_SHELL_PERF_TX_LBT_RSSI_BUSY_THRESHOLD: {
-			temp = atoi(optarg);
+			temp = atoi(sys_getopt_optarg);
 			if (temp >= 0 ||
 			    temp < INT8_MIN) {
 				desh_error("Invalid LBT RSSI busy threshold %d (range: [%d,-1])",
@@ -296,15 +297,15 @@ static int dect_phy_perf_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case DECT_SHELL_PERF_TX_MCS: {
-			params.tx_mcs = atoi(optarg);
+			params.tx_mcs = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PERF_CHANNEL: {
-			params.channel = atoi(optarg);
+			params.channel = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PERF_SLOT_COUNT: {
-			ret = atoi(optarg);
+			ret = atoi(sys_getopt_optarg);
 			if (ret <= 0) {
 				desh_error("Give decent value for the slot count (> 0)");
 				goto show_usage;
@@ -313,31 +314,34 @@ static int dect_phy_perf_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case DECT_SHELL_PERF_SLOT_GAP_COUNT: {
-			params.slot_gap_count = atoi(optarg);
+			params.slot_gap_count = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PERF_SUBSLOT_GAP_COUNT: {
-			params.subslot_gap_count = atoi(optarg);
+			params.subslot_gap_count = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PERF_SUBSLOT_COUNT_HARQ_FEEDBACK_RX: {
-			params.client_harq_feedback_rx_subslot_count = atoi(optarg);
+			params.client_harq_feedback_rx_subslot_count = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PERF_SUBSLOT_COUNT_HARQ_FEEDBACK_RX_DELAY_SLOT_COUNT: {
-			params.client_harq_feedback_rx_delay_subslot_count = atoi(optarg);
+			params.client_harq_feedback_rx_delay_subslot_count =
+				atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PERF_SLOT_COUNT_HARQ_FEEDBACK_TX_DELAY_SUBSLOT_COUNT: {
-			params.server_harq_feedback_tx_delay_subslot_count = atoi(optarg);
+			params.server_harq_feedback_tx_delay_subslot_count =
+				atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PERF_SLOT_COUNT_HARQ_FEEDBACK_TX_RX_DELAY_SUBSLOT_COUNT: {
-			params.server_harq_feedback_tx_rx_delay_subslot_count = atoi(optarg);
+			params.server_harq_feedback_tx_rx_delay_subslot_count =
+				atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PERF_HARQ_MDM_PROCESS_COUNT: {
-			temp = atoi(optarg);
+			temp = atoi(sys_getopt_optarg);
 			if (temp != 1 && temp != 2 && temp != 4 && temp != 8) {
 				desh_error("Not valid HARQ process count.");
 				goto show_usage;
@@ -346,7 +350,7 @@ static int dect_phy_perf_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case DECT_SHELL_PERF_DECT_HARQ_CLIENT_PROCESS_MAX_NBR: {
-			temp = atoi(optarg);
+			temp = atoi(sys_getopt_optarg);
 			if (temp < 0 || temp > 7) {
 				desh_error("Not valid HARQ process nbr max.");
 				goto show_usage;
@@ -355,7 +359,7 @@ static int dect_phy_perf_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case DECT_SHELL_PERF_HARQ_MDM_EXPIRY_TIME: {
-			temp = atoi(optarg);
+			temp = atoi(sys_getopt_optarg);
 			if (temp <= 0 || temp > 5000000) {
 				desh_error("Not valid HARQ rx buffer expiration time given.");
 				goto show_usage;
@@ -367,11 +371,11 @@ static int dect_phy_perf_cmd(const struct shell *shell, size_t argc, char **argv
 			goto show_usage;
 		case '?':
 		default:
-			desh_error("Unknown option (%s). See usage:", argv[optind - 1]);
+			desh_error("Unknown option (%s). See usage:", argv[sys_getopt_optind - 1]);
 			goto show_usage;
 		}
 	}
-	if (optind < argc) {
+	if (sys_getopt_optind < argc) {
 		desh_error("Arguments without '-' not supported: %s", argv[argc - 1]);
 		goto show_usage;
 	}
@@ -413,12 +417,15 @@ enum {
 	DECT_SHELL_CERT_TEST_MODE_CONTINUOUS,
 	DECT_SHELL_CERT_RF_MODE_PEER,
 	DECT_SHELL_CERT_TX_MCS,
+	DECT_SHELL_CERT_TX_LBT_PERIOD,
+	DECT_SHELL_CERT_TX_LBT_RSSI_BUSY_THRESHOLD,
 	DECT_SHELL_CERT_RX_FRAME_START_OFFSET_SUBSLOTS,
 	DECT_SHELL_CERT_RX_SUBSLOT_COUNT,
 	DECT_SHELL_CERT_RX_POST_IDLE_SUBSLOT_COUNT,
 	DECT_SHELL_CERT_TX_FRAME_START_OFFSET_SUBSLOTS,
 	DECT_SHELL_CERT_TX_SUBSLOT_COUNT,
 	DECT_SHELL_CERT_TX_POST_IDLE_SUBSLOT_COUNT,
+	DECT_SHELL_CERT_RX_SHOW_MIN_MAX_VALUES,
 };
 
 static const char dect_phy_rf_tool_cmd_usage_str[] =
@@ -431,7 +438,11 @@ static const char dect_phy_rf_tool_cmd_usage_str[] =
 	"                                     Default: \"rx_cont\".\n"
 	"                                     Note: As a default, RF mode \"rx_cont\" is\n"
 	"                                     reporting the results only when\n"
-	"                                     \"dect rf_tool stop\" is given.\n"
+	"                                     \"dect rf_tool stop\" is given, and when max RX\n"
+	"                                     duration is reached and RX is restarted.\n"
+	"                                     Note: use --continuous option to enable continuous\n"
+	"                                     mode, i.e. to continue over default\n"
+	"                                     frame_repeat_count_intervals.\n"
 	"      --rf_mode_peer,                RF operation mode of the TX side peer,\n"
 	"                                     can be one of the following: \"tx\", \"rx_tx\".\n"
 	"                                     Only meaningful if rf_mode is set to \"rx_cont\".\n"
@@ -449,12 +460,19 @@ static const char dect_phy_rf_tool_cmd_usage_str[] =
 	"                                     band #9 1703-1711, band #22 1691-1711.\n"
 	"  -e  --rx_exp_rssi_level <int>,     Set expected RSSI level on RX (dBm).\n"
 	"                                     Default: from common rx settings.\n"
+	"      --rx_show_min_max_values,      Show min/max RX RSSI/SNR values in results.\n"
+	"                                     Default: disabled (only average shown).\n"
 	"  -p  --tx_pwr <int>,                TX power (dBm),\n"
 	"                                     [-40,-30,-20,-16,-12,-8,-4,0,4,7,10,13,16,19,21,23]\n"
 	"                                     See supported max for the used band by using\n"
 	"                                     \"dect status\" -command output.\n"
 	"                                     Default: from common tx settings.\n"
 	"      --tx_mcs <int>,                Set TX MCS. Default: from common tx settings.\n"
+	"      --tx_lbt_period <cnt>,         Listen Before Talk (LBT) period (symbol count).\n"
+	"                                     Zero value disables LBT (default).\n"
+	"                                     Valid range for symbol count: 2-110.\n"
+	"      --tx_lbt_busy_th <dbm>,        LBT busy RSSI threshold (dBm). Valid only when LBT\n"
+	"                                     is enabled. Default from RSSI busy threshold setting.\n"
 	"Frame structure:\n"
 	"rx_frame_start_offset + rx_subslot_count + rx_idle_subslot_count +\n"
 	"tx_frame_start_offset + tx_subslot_count + tx_idle_subslot_count\n"
@@ -477,7 +495,6 @@ static const char dect_phy_rf_tool_cmd_usage_str[] =
 	"      --continuous,                  Enable continuous mode, can be stopped by using:\n"
 	"                                     \"dect rf_tool stop\".\n"
 	"                                     Default: disabled.\n"
-	"                                     i.e. only configured frame_repeat_count/interval.\n"
 	"      --rx_frame_start_offset <int>, Subslot count before RX operation\n"
 	"                                     calculated from a start of a frame.\n"
 	"                                     Default: 0 (=starting from the start of a frame).\n"
@@ -503,27 +520,34 @@ static const char dect_phy_rf_tool_cmd_usage_str[] =
 	"                                     Default: 6.\n";
 
 /* Specifying the expected options (both long and short): */
-static struct option long_options_cert[] = {
-	{"rf_mode", required_argument, 0, 'm'},
-	{"rf_mode_peer", required_argument, 0, DECT_SHELL_CERT_RF_MODE_PEER},
-	{"tx_id", required_argument, 0, 't'},
-	{"channel", required_argument, 0, 'c'},
-	{"rx_exp_rssi_level", required_argument, 0, 'e'},
-	{"rx_find_sync", no_argument, 0, 's'},
-	{"tx_pwr", required_argument, 0, 'p'},
-	{"tx_mcs", required_argument, 0, DECT_SHELL_CERT_TX_MCS},
-	{"frame_repeat_count", required_argument, 0, DECT_SHELL_CERT_FRAME_REPEAT_COUNT},
-	{"frame_repeat_count_intervals", required_argument, 0,
+static struct sys_getopt_option long_options_cert[] = {
+	{"rf_mode", sys_getopt_required_argument, 0, 'm'},
+	{"rf_mode_peer", sys_getopt_required_argument, 0, DECT_SHELL_CERT_RF_MODE_PEER},
+	{"tx_id", sys_getopt_required_argument, 0, 't'},
+	{"channel", sys_getopt_required_argument, 0, 'c'},
+	{"rx_exp_rssi_level", sys_getopt_required_argument, 0, 'e'},
+	{"rx_find_sync", sys_getopt_no_argument, 0, 's'},
+	{"tx_pwr", sys_getopt_required_argument, 0, 'p'},
+	{"tx_mcs", sys_getopt_required_argument, 0, DECT_SHELL_CERT_TX_MCS},
+	{"tx_lbt_period", sys_getopt_required_argument, 0, DECT_SHELL_CERT_TX_LBT_PERIOD },
+	{"tx_lbt_busy_th", sys_getopt_required_argument, 0,
+	 DECT_SHELL_CERT_TX_LBT_RSSI_BUSY_THRESHOLD },
+	{"frame_repeat_count", sys_getopt_required_argument, 0, DECT_SHELL_CERT_FRAME_REPEAT_COUNT},
+	{"frame_repeat_count_intervals", sys_getopt_required_argument, 0,
 	 DECT_SHELL_CERT_FRAME_REPEAT_COUNT_INTERVALS},
-	{"continuous", no_argument, 0, DECT_SHELL_CERT_TEST_MODE_CONTINUOUS},
-	{"rx_frame_start_offset", required_argument, 0,
+	{"continuous", sys_getopt_no_argument, 0, DECT_SHELL_CERT_TEST_MODE_CONTINUOUS},
+	{"rx_frame_start_offset", sys_getopt_required_argument, 0,
 	 DECT_SHELL_CERT_RX_FRAME_START_OFFSET_SUBSLOTS},
-	{"rx_subslot_count", required_argument, 0, DECT_SHELL_CERT_RX_SUBSLOT_COUNT},
-	{"rx_idle_subslot_count", required_argument, 0, DECT_SHELL_CERT_RX_POST_IDLE_SUBSLOT_COUNT},
-	{"tx_frame_start_offset", required_argument, 0,
+	{"rx_subslot_count", sys_getopt_required_argument, 0, DECT_SHELL_CERT_RX_SUBSLOT_COUNT},
+	{"rx_idle_subslot_count", sys_getopt_required_argument, 0,
+	 DECT_SHELL_CERT_RX_POST_IDLE_SUBSLOT_COUNT},
+	{"tx_frame_start_offset", sys_getopt_required_argument, 0,
 	 DECT_SHELL_CERT_TX_FRAME_START_OFFSET_SUBSLOTS},
-	{"tx_subslot_count", required_argument, 0, DECT_SHELL_CERT_TX_SUBSLOT_COUNT},
-	{"tx_idle_subslot_count", required_argument, 0, DECT_SHELL_CERT_TX_POST_IDLE_SUBSLOT_COUNT},
+	{"tx_subslot_count", sys_getopt_required_argument, 0, DECT_SHELL_CERT_TX_SUBSLOT_COUNT},
+	{"tx_idle_subslot_count", sys_getopt_required_argument, 0,
+	 DECT_SHELL_CERT_TX_POST_IDLE_SUBSLOT_COUNT},
+	{"rx_show_min_max_values", sys_getopt_no_argument, 0,
+	 DECT_SHELL_CERT_RX_SHOW_MIN_MAX_VALUES},
 	{0, 0, 0, 0}};
 
 static int dect_phy_rf_tool_cmd(const struct shell *shell, size_t argc, char **argv)
@@ -534,13 +558,13 @@ static int dect_phy_rf_tool_cmd(const struct shell *shell, size_t argc, char **a
 	int opt;
 	bool tx_starttime_set = false;
 	bool peer_mode_set = false;
+	int tmp_value;
 
 	if (argc == 0) {
 		goto show_usage;
 	}
 
-	optreset = 1;
-	optind = 1;
+	sys_getopt_init();
 
 	if (argv[1] != NULL && !strcmp(argv[1], "stop")) {
 		dect_phy_ctrl_rf_tool_cmd_stop();
@@ -556,6 +580,9 @@ static int dect_phy_rf_tool_cmd(const struct shell *shell, size_t argc, char **a
 	params.channel = 1665;
 	params.tx_power_dbm = current_settings->tx.power_dbm;
 	params.tx_mcs = current_settings->tx.mcs;
+	params.tx_lbt_period_symbols = 0;
+	params.tx_lbt_rssi_busy_threshold_dbm = current_settings->rssi_scan.busy_threshold;
+
 	params.expected_rx_rssi_level = current_settings->rx.expected_rssi_level;
 	params.find_rx_sync = false;
 	params.continuous = false;
@@ -570,9 +597,10 @@ static int dect_phy_rf_tool_cmd(const struct shell *shell, size_t argc, char **a
 				       params.rx_post_idle_subslot_count;
 	params.tx_subslot_count = 4;
 	params.tx_post_idle_subslot_count = 6;
+	params.rx_show_min_max_values = false;
 
-	while ((opt = getopt_long(argc, argv, "m:t:c:e:p:sh", long_options_cert, &long_index)) !=
-	       -1) {
+	while ((opt = sys_getopt_long(argc, argv, "m:t:c:e:p:sh", long_options_cert,
+		&long_index)) != -1) {
 		switch (opt) {
 		case 's': {
 			params.find_rx_sync = true;
@@ -580,46 +608,46 @@ static int dect_phy_rf_tool_cmd(const struct shell *shell, size_t argc, char **a
 		}
 
 		case 'm': {
-			if (strcmp(optarg, "rx") == 0) {
+			if (strcmp(sys_getopt_optarg, "rx") == 0) {
 				params.mode = DECT_PHY_RF_TOOL_MODE_RX;
-			} else if (strcmp(optarg, "rx_cont") == 0) {
+			} else if (strcmp(sys_getopt_optarg, "rx_cont") == 0) {
 				params.mode = DECT_PHY_RF_TOOL_MODE_RX_CONTINUOUS;
-			} else if (strcmp(optarg, "tx") == 0) {
+			} else if (strcmp(sys_getopt_optarg, "tx") == 0) {
 				params.mode = DECT_PHY_RF_TOOL_MODE_TX;
-			} else if (strcmp(optarg, "rx_tx") == 0) {
+			} else if (strcmp(sys_getopt_optarg, "rx_tx") == 0) {
 				params.mode = DECT_PHY_RF_TOOL_MODE_RX_TX;
 			} else {
-				desh_error("Unknown mode: %s", optarg);
+				desh_error("Unknown mode: %s", sys_getopt_optarg);
 				goto show_usage;
 			}
 			break;
 		}
 		case DECT_SHELL_CERT_RF_MODE_PEER: {
-			if (strcmp(optarg, "tx") == 0) {
+			if (strcmp(sys_getopt_optarg, "tx") == 0) {
 				params.peer_mode = DECT_PHY_RF_TOOL_MODE_TX;
-			} else if (strcmp(optarg, "rx_tx") == 0) {
+			} else if (strcmp(sys_getopt_optarg, "rx_tx") == 0) {
 				params.peer_mode = DECT_PHY_RF_TOOL_MODE_RX_TX;
 			} else {
-				desh_error("Unknown peerf rf mode: %s", optarg);
+				desh_error("Unknown peerf rf mode: %s", sys_getopt_optarg);
 				goto show_usage;
 			}
 			peer_mode_set = true;
 			break;
 		}
 		case 'c': {
-			params.channel = atoi(optarg);
+			params.channel = atoi(sys_getopt_optarg);
 			break;
 		}
 		case 'e': {
-			params.expected_rx_rssi_level = atoi(optarg);
+			params.expected_rx_rssi_level = atoi(sys_getopt_optarg);
 			break;
 		}
 		case 't': {
-			params.destination_transmitter_id = atoi(optarg);
+			params.destination_transmitter_id = atoi(sys_getopt_optarg);
 			break;
 		}
 		case 'p': {
-			params.tx_power_dbm = atoi(optarg);
+			params.tx_power_dbm = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_CERT_TEST_MODE_CONTINUOUS: {
@@ -628,22 +656,49 @@ static int dect_phy_rf_tool_cmd(const struct shell *shell, size_t argc, char **a
 			break;
 		}
 		case DECT_SHELL_CERT_TX_MCS: {
-			params.tx_mcs = atoi(optarg);
+			params.tx_mcs = atoi(sys_getopt_optarg);
+			break;
+		}
+		case DECT_SHELL_CERT_TX_LBT_PERIOD: {
+			tmp_value = atoi(sys_getopt_optarg);
+			if (tmp_value < DECT_PHY_LBT_PERIOD_MIN_SYM ||
+				tmp_value > DECT_PHY_LBT_PERIOD_MAX_SYM) {
+				desh_error("Invalid LBT period %d (range: [%d,%d])",
+					   tmp_value,
+					   DECT_PHY_LBT_PERIOD_MIN_SYM,
+					   DECT_PHY_LBT_PERIOD_MAX_SYM);
+				goto show_usage;
+			}
+			params.tx_lbt_period_symbols = tmp_value;
+			break;
+		}
+		case DECT_SHELL_CERT_TX_LBT_RSSI_BUSY_THRESHOLD: {
+			tmp_value = atoi(sys_getopt_optarg);
+			if (tmp_value >= 0 ||
+			    tmp_value < INT8_MIN) {
+				desh_error("Invalid LBT RSSI busy threshold %d (range: [%d,-1])",
+					   tmp_value,
+					   INT8_MIN);
+				goto show_usage;
+			}
+			params.tx_lbt_rssi_busy_threshold_dbm = tmp_value;
 			break;
 		}
 		case DECT_SHELL_CERT_FRAME_REPEAT_COUNT: {
-			ret = atoi(optarg);
+			ret = atoi(sys_getopt_optarg);
 			if (ret <= 0) {
 				desh_error("Give decent value (> 0)");
 				goto show_usage;
-			} else if (ret > 50) {
-				desh_warn("Too high frame_repeat_count might cause issues.");
+			} else if (ret > DECT_PHY_RF_TOOL_FRAME_REPEAT_COUNT_MAX) {
+				desh_error("frame_repeat_count (%d) exceeds maximum (%d)",
+					   ret, DECT_PHY_RF_TOOL_FRAME_REPEAT_COUNT_MAX);
+				goto show_usage;
 			}
 			params.frame_repeat_count = ret;
 			break;
 		}
 		case DECT_SHELL_CERT_FRAME_REPEAT_COUNT_INTERVALS: {
-			ret = atoi(optarg);
+			ret = atoi(sys_getopt_optarg);
 			if (ret <= 0) {
 				desh_error("Give decent value (> 0)");
 				goto show_usage;
@@ -652,7 +707,7 @@ static int dect_phy_rf_tool_cmd(const struct shell *shell, size_t argc, char **a
 			break;
 		}
 		case DECT_SHELL_CERT_RX_FRAME_START_OFFSET_SUBSLOTS: {
-			ret = atoi(optarg);
+			ret = atoi(sys_getopt_optarg);
 			if (ret < 0) {
 				desh_error("Give decent value (>= 0)");
 				goto show_usage;
@@ -661,7 +716,7 @@ static int dect_phy_rf_tool_cmd(const struct shell *shell, size_t argc, char **a
 			break;
 		}
 		case DECT_SHELL_CERT_RX_SUBSLOT_COUNT: {
-			ret = atoi(optarg);
+			ret = atoi(sys_getopt_optarg);
 			if (ret <= 0) {
 				desh_error("Give decent value (> 0)");
 				goto show_usage;
@@ -670,7 +725,7 @@ static int dect_phy_rf_tool_cmd(const struct shell *shell, size_t argc, char **a
 			break;
 		}
 		case DECT_SHELL_CERT_RX_POST_IDLE_SUBSLOT_COUNT: {
-			ret = atoi(optarg);
+			ret = atoi(sys_getopt_optarg);
 			if (ret < 0) {
 				desh_error("Give decent value (>= 0)");
 				goto show_usage;
@@ -679,7 +734,7 @@ static int dect_phy_rf_tool_cmd(const struct shell *shell, size_t argc, char **a
 			break;
 		}
 		case DECT_SHELL_CERT_TX_FRAME_START_OFFSET_SUBSLOTS: {
-			ret = atoi(optarg);
+			ret = atoi(sys_getopt_optarg);
 			if (ret < 0) {
 				desh_error("Give decent value (>= 0)");
 				goto show_usage;
@@ -689,7 +744,7 @@ static int dect_phy_rf_tool_cmd(const struct shell *shell, size_t argc, char **a
 			break;
 		}
 		case DECT_SHELL_CERT_TX_SUBSLOT_COUNT: {
-			ret = atoi(optarg);
+			ret = atoi(sys_getopt_optarg);
 			if (ret < 0) {
 				desh_error("Give decent value (>= 0)");
 				goto show_usage;
@@ -698,7 +753,7 @@ static int dect_phy_rf_tool_cmd(const struct shell *shell, size_t argc, char **a
 			break;
 		}
 		case DECT_SHELL_CERT_TX_POST_IDLE_SUBSLOT_COUNT: {
-			ret = atoi(optarg);
+			ret = atoi(sys_getopt_optarg);
 			if (ret < 0) {
 				desh_error("Give decent value (>= 0)");
 				goto show_usage;
@@ -706,15 +761,19 @@ static int dect_phy_rf_tool_cmd(const struct shell *shell, size_t argc, char **a
 			params.tx_post_idle_subslot_count = ret;
 			break;
 		}
+		case DECT_SHELL_CERT_RX_SHOW_MIN_MAX_VALUES: {
+			params.rx_show_min_max_values = true;
+			break;
+		}
 		case 'h':
 			goto show_usage;
 		case '?':
 		default:
-			desh_error("Unknown option (%s). See usage:", argv[optind - 1]);
+			desh_error("Unknown option (%s). See usage:", argv[sys_getopt_optind - 1]);
 			goto show_usage;
 		}
 	}
-	if (optind < argc) {
+	if (sys_getopt_optind < argc) {
 		desh_error("Arguments without '-' not supported: %s", argv[argc - 1]);
 		goto show_usage;
 	}
@@ -828,25 +887,26 @@ enum {
 };
 
 /* Specifying the expected options (both long and short): */
-static struct option long_options_ping[] = {
-	{"client", no_argument, 0, 'c'},
-	{"server", no_argument, 0, 's'},
-	{"rssi_meas", no_argument, 0, 'm'},
-	{"use_harq", no_argument, 0, 'a'},
-	{"channel", required_argument, 0, DECT_SHELL_PING_CHANNEL},
-	{"c_timeout", required_argument, 0, 't'},
-	{"c_count", required_argument, 0, DECT_SHELL_PING_COUNT},
-	{"c_interval", required_argument, 0, 'i'},
-	{"c_slots", required_argument, 0, 'l'},
-	{"c_tx_pwr", required_argument, 0, DECT_SHELL_PING_TX_PWR},
-	{"c_tx_mcs", required_argument, 0, DECT_SHELL_PING_TX_MCS},
-	{"c_tx_lbt_period", required_argument, 0, DECT_SHELL_PING_TX_LBT_PERIOD },
-	{"c_tx_lbt_busy_th", required_argument, 0, DECT_SHELL_PING_TX_LBT_RSSI_BUSY_THRESHOLD },
-	{"rx_exp_rssi_level", required_argument, 0, 'e'},
-	{"s_tx_id", required_argument, 0, DECT_SHELL_PING_DEST_SERVER_TX_ID},
-	{"tx_pwr_ctrl_pdu_rx_exp_rssi_level", required_argument, 0,
+static struct sys_getopt_option long_options_ping[] = {
+	{"client", sys_getopt_no_argument, 0, 'c'},
+	{"server", sys_getopt_no_argument, 0, 's'},
+	{"rssi_meas", sys_getopt_no_argument, 0, 'm'},
+	{"use_harq", sys_getopt_no_argument, 0, 'a'},
+	{"channel", sys_getopt_required_argument, 0, DECT_SHELL_PING_CHANNEL},
+	{"c_timeout", sys_getopt_required_argument, 0, 't'},
+	{"c_count", sys_getopt_required_argument, 0, DECT_SHELL_PING_COUNT},
+	{"c_interval", sys_getopt_required_argument, 0, 'i'},
+	{"c_slots", sys_getopt_required_argument, 0, 'l'},
+	{"c_tx_pwr", sys_getopt_required_argument, 0, DECT_SHELL_PING_TX_PWR},
+	{"c_tx_mcs", sys_getopt_required_argument, 0, DECT_SHELL_PING_TX_MCS},
+	{"c_tx_lbt_period", sys_getopt_required_argument, 0, DECT_SHELL_PING_TX_LBT_PERIOD },
+	{"c_tx_lbt_busy_th", sys_getopt_required_argument, 0,
+	 DECT_SHELL_PING_TX_LBT_RSSI_BUSY_THRESHOLD },
+	{"rx_exp_rssi_level", sys_getopt_required_argument, 0, 'e'},
+	{"s_tx_id", sys_getopt_required_argument, 0, DECT_SHELL_PING_DEST_SERVER_TX_ID},
+	{"tx_pwr_ctrl_pdu_rx_exp_rssi_level", sys_getopt_required_argument, 0,
 	 DECT_SHELL_PING_TX_PWR_CTRL_PDU_RX_EXPECTED_RSSI_LEVEL},
-	{"tx_pwr_ctrl_auto", no_argument, 0, DECT_SHELL_PING_TX_PWR_CTRL_AUTO},
+	{"tx_pwr_ctrl_auto", sys_getopt_no_argument, 0, DECT_SHELL_PING_TX_PWR_CTRL_AUTO},
 	{0, 0, 0, 0}};
 
 static int dect_phy_ping_cmd(const struct shell *shell, size_t argc, char **argv)
@@ -860,8 +920,7 @@ static int dect_phy_ping_cmd(const struct shell *shell, size_t argc, char **argv
 	if (argc < 2) {
 		goto show_usage;
 	}
-	optreset = 1;
-	optind = 1;
+	sys_getopt_init();
 
 	if (argv[1] != NULL && !strcmp(argv[1], "stop")) {
 		desh_print("ping command stopping.");
@@ -889,8 +948,8 @@ static int dect_phy_ping_cmd(const struct shell *shell, size_t argc, char **argv
 	params.pwr_ctrl_automatic = false;
 	params.use_harq = false;
 
-	while ((opt = getopt_long(argc, argv, "i:e:t:l:csdmah", long_options_ping, &long_index)) !=
-	       -1) {
+	while ((opt = sys_getopt_long(argc, argv, "i:e:t:l:csdmah", long_options_ping,
+		&long_index)) != -1) {
 		switch (opt) {
 		case 'd': {
 			params.debugs = true;
@@ -909,19 +968,19 @@ static int dect_phy_ping_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case 't': {
-			params.timeout_msecs = atoi(optarg);
+			params.timeout_msecs = atoi(sys_getopt_optarg);
 			break;
 		}
 		case 'i': {
-			params.interval_secs = atoi(optarg);
+			params.interval_secs = atoi(sys_getopt_optarg);
 			break;
 		}
 		case 'e': {
-			params.expected_rx_rssi_level = atoi(optarg);
+			params.expected_rx_rssi_level = atoi(sys_getopt_optarg);
 			break;
 		}
 		case 'l': {
-			ret = atoi(optarg);
+			ret = atoi(sys_getopt_optarg);
 			if (ret <= 0) {
 				desh_error("Give decent value for the slot count (> 0)");
 				goto show_usage;
@@ -934,19 +993,19 @@ static int dect_phy_ping_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case DECT_SHELL_PING_DEST_SERVER_TX_ID: {
-			params.destination_transmitter_id = atoi(optarg);
+			params.destination_transmitter_id = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PING_TX_PWR: {
-			params.tx_power_dbm = atoi(optarg);
+			params.tx_power_dbm = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PING_TX_MCS: {
-			params.tx_mcs = atoi(optarg);
+			params.tx_mcs = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PING_TX_LBT_PERIOD: {
-			tmp_value = atoi(optarg);
+			tmp_value = atoi(sys_getopt_optarg);
 			if (tmp_value < DECT_PHY_LBT_PERIOD_MIN_SYM ||
 				tmp_value > DECT_PHY_LBT_PERIOD_MAX_SYM) {
 				desh_error("Invalid LBT period %d (range: [%d,%d])",
@@ -959,7 +1018,7 @@ static int dect_phy_ping_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case DECT_SHELL_PING_TX_LBT_RSSI_BUSY_THRESHOLD: {
-			tmp_value = atoi(optarg);
+			tmp_value = atoi(sys_getopt_optarg);
 			if (tmp_value >= 0 ||
 			    tmp_value < INT8_MIN) {
 				desh_error("Invalid LBT RSSI busy threshold %d (range: [%d,-1])",
@@ -971,11 +1030,11 @@ static int dect_phy_ping_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case DECT_SHELL_PING_CHANNEL: {
-			params.channel = atoi(optarg);
+			params.channel = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PING_COUNT: {
-			ret = atoi(optarg);
+			ret = atoi(sys_getopt_optarg);
 			if (ret <= 0) {
 				desh_error("Give decent value for the ping count (> 0)");
 				goto show_usage;
@@ -984,7 +1043,7 @@ static int dect_phy_ping_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case DECT_SHELL_PING_TX_PWR_CTRL_PDU_RX_EXPECTED_RSSI_LEVEL: {
-			params.pwr_ctrl_pdu_expected_rx_rssi_level = atoi(optarg);
+			params.pwr_ctrl_pdu_expected_rx_rssi_level = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_PING_TX_PWR_CTRL_AUTO: {
@@ -995,11 +1054,11 @@ static int dect_phy_ping_cmd(const struct shell *shell, size_t argc, char **argv
 			goto show_usage;
 		case '?':
 		default:
-			desh_error("Unknown option (%s). See usage:", argv[optind - 1]);
+			desh_error("Unknown option (%s). See usage:", argv[sys_getopt_optind - 1]);
 			goto show_usage;
 		}
 	}
-	if (optind < argc) {
+	if (sys_getopt_optind < argc) {
 		desh_error("Arguments without '-' not supported: %s", argv[argc - 1]);
 		goto show_usage;
 	}
@@ -1055,10 +1114,10 @@ static const char dect_phy_activate_cmd_usage_str[] =
 	"                                    performance compared to the other radio modes.\n";
 
 /* Specifying the expected options (both long and short): */
-static struct option long_options_radio_mode_conf[] = {
-	{ "low_latency", no_argument, 0, '0' },
-	{ "low_latency_with_standby", no_argument, 0, '1' },
-	{ "non_lbt_with_standby", no_argument, 0, '2' },
+static struct sys_getopt_option long_options_radio_mode_conf[] = {
+	{ "low_latency", sys_getopt_no_argument, 0, '0' },
+	{ "low_latency_with_standby", sys_getopt_no_argument, 0, '1' },
+	{ "non_lbt_with_standby", sys_getopt_no_argument, 0, '2' },
 	{ 0, 0, 0, 0 } };
 
 static void dect_phy_activate_cmd(const struct shell *shell, size_t argc, char **argv)
@@ -1068,10 +1127,10 @@ static void dect_phy_activate_cmd(const struct shell *shell, size_t argc, char *
 	int long_index = 0;
 	int opt, ret;
 
-	optreset = 1;
-	optind = 1;
-	while ((opt = getopt_long(argc, argv, "123h", long_options_radio_mode_conf, &long_index)) !=
-	       -1) {
+	sys_getopt_init();
+
+	while ((opt = sys_getopt_long(argc, argv, "123h", long_options_radio_mode_conf,
+		&long_index)) != -1) {
 		switch (opt) {
 		case '1':
 			radio_mode = NRF_MODEM_DECT_PHY_RADIO_MODE_LOW_LATENCY;
@@ -1086,11 +1145,11 @@ static void dect_phy_activate_cmd(const struct shell *shell, size_t argc, char *
 			goto show_usage;
 		case '?':
 		default:
-			desh_error("Unknown option (%s). See usage:", argv[optind - 1]);
+			desh_error("Unknown option (%s). See usage:", argv[sys_getopt_optind - 1]);
 			goto show_usage;
 		}
 	}
-	if (optind < argc) {
+	if (sys_getopt_optind < argc) {
 		desh_error("Arguments without '-' not supported: %s", argv[argc - 1]);
 		goto show_usage;
 	}
@@ -1143,10 +1202,10 @@ static void dect_phy_radio_mode_cmd(const struct shell *shell, size_t argc, char
 	int long_index = 0;
 	int opt, ret;
 
-	optreset = 1;
-	optind = 1;
-	while ((opt = getopt_long(argc, argv, "123h", long_options_radio_mode_conf, &long_index)) !=
-	       -1) {
+	sys_getopt_init();
+
+	while ((opt = sys_getopt_long(argc, argv, "123h", long_options_radio_mode_conf,
+		&long_index)) != -1) {
 		switch (opt) {
 		case '1':
 			radio_mode = NRF_MODEM_DECT_PHY_RADIO_MODE_LOW_LATENCY;
@@ -1161,11 +1220,11 @@ static void dect_phy_radio_mode_cmd(const struct shell *shell, size_t argc, char
 			goto show_usage;
 		case '?':
 		default:
-			desh_error("Unknown option (%s). See usage:", argv[optind - 1]);
+			desh_error("Unknown option (%s). See usage:", argv[sys_getopt_optind - 1]);
 			goto show_usage;
 		}
 	}
-	if (optind < argc) {
+	if (sys_getopt_optind < argc) {
 		desh_error("Arguments without '-' not supported: %s", argv[argc - 1]);
 		goto show_usage;
 	}
@@ -1244,15 +1303,15 @@ enum {
 };
 
 /* Specifying the expected options (both long and short): */
-static struct option long_options_rssi_scan[] = {
-	{"verdict_type_count", no_argument, 0,
+static struct sys_getopt_option long_options_rssi_scan[] = {
+	{"verdict_type_count", sys_getopt_no_argument, 0,
 		DECT_SHELL_RSSI_SCAN_RESULT_VERDICT_TYPE_SUBSLOT_COUNT},
-	{"verdict_type_count_details", no_argument, 0,
+	{"verdict_type_count_details", sys_getopt_no_argument, 0,
 		DECT_SHELL_RSSI_SCAN_RESULT_VERDICT_TYPE_SUBSLOT_COUNT_DETAIL_PRINT},
-	{"free_th", required_argument, 0, DECT_SHELL_RSSI_SCAN_FREE_TH},
-	{"busy_th", required_argument, 0, DECT_SHELL_RSSI_SCAN_BUSY_TH},
-	{"force", no_argument, 0, 'f'},
-	{"only_allowed_channels", no_argument, 0, 'a'},
+	{"free_th", sys_getopt_required_argument, 0, DECT_SHELL_RSSI_SCAN_FREE_TH},
+	{"busy_th", sys_getopt_required_argument, 0, DECT_SHELL_RSSI_SCAN_BUSY_TH},
+	{"force", sys_getopt_no_argument, 0, 'f'},
+	{"only_allowed_channels", sys_getopt_no_argument, 0, 'a'},
 	{0, 0, 0, 0}};
 
 static int dect_phy_rssi_scan_cmd(const struct shell *shell, size_t argc, char **argv)
@@ -1268,8 +1327,8 @@ static int dect_phy_rssi_scan_cmd(const struct shell *shell, size_t argc, char *
 		goto show_usage;
 	}
 
-	optreset = 1;
-	optind = 1;
+	sys_getopt_init();
+
 	if (argv[1] != NULL && !strcmp(argv[1], "list")) {
 		dect_phy_scan_rssi_latest_results_print();
 	} else if (argv[1] != NULL && !strcmp(argv[1], "stop")) {
@@ -1289,19 +1348,19 @@ static int dect_phy_rssi_scan_cmd(const struct shell *shell, size_t argc, char *
 		params.dont_stop_on_nbr_channels = false;
 		params.only_allowed_channels = false;
 
-		while ((opt = getopt_long(argc, argv, "c:i:t:fah", long_options_rssi_scan,
+		while ((opt = sys_getopt_long(argc, argv, "c:i:t:fah", long_options_rssi_scan,
 					  &long_index)) != -1) {
 			switch (opt) {
 			case 'c': {
-				params.channel = atoi(optarg);
+				params.channel = atoi(sys_getopt_optarg);
 				break;
 			}
 			case 'i': {
-				params.interval_secs = atoi(optarg);
+				params.interval_secs = atoi(sys_getopt_optarg);
 				break;
 			}
 			case 't': {
-				params.scan_time_ms = atoi(optarg);
+				params.scan_time_ms = atoi(sys_getopt_optarg);
 				break;
 			}
 			case 'f': {
@@ -1320,11 +1379,11 @@ static int dect_phy_rssi_scan_cmd(const struct shell *shell, size_t argc, char *
 				break;
 			}
 			case DECT_SHELL_RSSI_SCAN_FREE_TH: {
-				params.free_rssi_limit = atoi(optarg);
+				params.free_rssi_limit = atoi(sys_getopt_optarg);
 				break;
 			}
 			case DECT_SHELL_RSSI_SCAN_BUSY_TH: {
-				params.busy_rssi_limit = atoi(optarg);
+				params.busy_rssi_limit = atoi(sys_getopt_optarg);
 				break;
 			}
 
@@ -1332,11 +1391,12 @@ static int dect_phy_rssi_scan_cmd(const struct shell *shell, size_t argc, char *
 				goto show_usage;
 			case '?':
 			default:
-				desh_error("Unknown option (%s). See usage:", argv[optind - 1]);
+				desh_error("Unknown option (%s). See usage:",
+					   argv[sys_getopt_optind - 1]);
 				goto show_usage;
 			}
 		}
-		if (optind < argc) {
+		if (sys_getopt_optind < argc) {
 			desh_error("Arguments without '-' not supported: %s", argv[argc - 1]);
 			goto show_usage;
 		}
@@ -1413,14 +1473,14 @@ enum {
 };
 
 /* Specifying the expected options (both long and short): */
-static struct option long_options_rx[] = {
-	{"c_scan_time", required_argument, 0, 't'},
-	{"c_rx_exp_rssi_level", required_argument, 0, 'e'},
-	{"force", no_argument, 0, 'f'},
-	{"use_all_channels", no_argument, 0, 'a'},
-	{"free_th", required_argument, 0, DECT_SHELL_RX_RSSI_SCAN_FREE_TH},
-	{"busy_th", required_argument, 0, DECT_SHELL_RX_RSSI_SCAN_BUSY_TH},
-	{"use_filter", no_argument, 0, DECT_SHELL_RX_USE_FILTER},
+static struct sys_getopt_option long_options_rx[] = {
+	{"c_scan_time", sys_getopt_required_argument, 0, 't'},
+	{"c_rx_exp_rssi_level", sys_getopt_required_argument, 0, 'e'},
+	{"force", sys_getopt_no_argument, 0, 'f'},
+	{"use_all_channels", sys_getopt_no_argument, 0, 'a'},
+	{"free_th", sys_getopt_required_argument, 0, DECT_SHELL_RX_RSSI_SCAN_FREE_TH},
+	{"busy_th", sys_getopt_required_argument, 0, DECT_SHELL_RX_RSSI_SCAN_BUSY_TH},
+	{"use_filter", sys_getopt_no_argument, 0, DECT_SHELL_RX_USE_FILTER},
 	{0, 0, 0, 0}};
 
 static int dect_phy_rx_cmd(const struct shell *shell, size_t argc, char **argv)
@@ -1436,8 +1496,9 @@ static int dect_phy_rx_cmd(const struct shell *shell, size_t argc, char **argv)
 		goto show_usage;
 	}
 
-	optreset = 1;
-	optind = 2;
+	sys_getopt_init();
+
+	sys_getopt_optind = 2;
 	if (argv[1] != NULL && !strcmp(argv[1], "stop")) {
 		dect_phy_ctrl_rx_stop();
 	} else if (argv[1] != NULL && !strcmp(argv[1], "start")) {
@@ -1458,7 +1519,7 @@ static int dect_phy_rx_cmd(const struct shell *shell, size_t argc, char **argv)
 		params.filter.receiver_identity = 0;
 		params.filter.short_network_id = 0;
 
-		while ((opt = getopt_long(argc, argv, "i:e:t:c:fha", long_options_rx,
+		while ((opt = sys_getopt_long(argc, argv, "i:e:t:c:fha", long_options_rx,
 					  &long_index)) != -1) {
 			switch (opt) {
 			case 'a': {
@@ -1466,7 +1527,7 @@ static int dect_phy_rx_cmd(const struct shell *shell, size_t argc, char **argv)
 				break;
 			}
 			case 'c': {
-				params.channel = atoi(optarg);
+				params.channel = atoi(sys_getopt_optarg);
 				break;
 			}
 			case 'f': {
@@ -1474,19 +1535,19 @@ static int dect_phy_rx_cmd(const struct shell *shell, size_t argc, char **argv)
 				break;
 			}
 			case 't': {
-				params.duration_secs = atoi(optarg);
+				params.duration_secs = atoi(sys_getopt_optarg);
 				break;
 			}
 			case 'e': {
-				params.expected_rssi_level = atoi(optarg);
+				params.expected_rssi_level = atoi(sys_getopt_optarg);
 				break;
 			}
 			case DECT_SHELL_RX_RSSI_SCAN_FREE_TH: {
-				params.free_rssi_limit = atoi(optarg);
+				params.free_rssi_limit = atoi(sys_getopt_optarg);
 				break;
 			}
 			case DECT_SHELL_RX_RSSI_SCAN_BUSY_TH: {
-				params.busy_rssi_limit = atoi(optarg);
+				params.busy_rssi_limit = atoi(sys_getopt_optarg);
 				break;
 			}
 			case DECT_SHELL_RX_USE_FILTER: {
@@ -1499,18 +1560,19 @@ static int dect_phy_rx_cmd(const struct shell *shell, size_t argc, char **argv)
 				break;
 			}
 			case 'i': {
-				params.rssi_interval_secs = atoi(optarg);
+				params.rssi_interval_secs = atoi(sys_getopt_optarg);
 				break;
 			}
 			case 'h':
 				goto show_usage;
 			case '?':
 			default:
-				desh_error("Unknown option (%s). See usage:", argv[optind - 1]);
+				desh_error("Unknown option (%s). See usage:",
+					   argv[sys_getopt_optind - 1]);
 				goto show_usage;
 			}
 		}
-		if (optind < argc) {
+		if (sys_getopt_optind < argc) {
 			desh_error("Arguments without '-' not supported: %s", argv[argc - 1]);
 			goto show_usage;
 		}
@@ -1548,6 +1610,16 @@ enum {
 	DECT_SHELL_SETT_COMMON_RX_EXP_RSSI_LEVEL,
 	DECT_SHELL_SETT_COMMON_TX_PWR,
 	DECT_SHELL_SETT_COMMON_TX_MCS,
+	DECT_SHELL_SETT_CERT_TX_CW_CTRL_ON,
+	DECT_SHELL_SETT_CERT_TX_CW_CTRL_OFF,
+	DECT_SHELL_SETT_CERT_TX_CW_CTRL_CHANNEL,
+	DECT_SHELL_SETT_CERT_TX_CW_CTRL_PWR_DBM,
+	DECT_SHELL_SETT_CERT_TX_STF_COVER_SEQ_ON,
+	DECT_SHELL_SETT_CERT_TX_STF_COVER_SEQ_OFF,
+	DECT_SHELL_SETT_CERT_RX_STF_COVER_SEQ_ON,
+	DECT_SHELL_SETT_CERT_RX_STF_COVER_SEQ_OFF,
+	DECT_SHELL_SETT_CERT_NW_ID_VALIDATION_ON,
+	DECT_SHELL_SETT_CERT_NW_ID_VALIDATION_OFF,
 	DECT_SHELL_SETT_RESET_ALL,
 };
 
@@ -1617,37 +1689,72 @@ static const char dect_phy_sett_cmd_usage_str[] =
 	"                                                    starting a TX for providing\n"
 	"                                                    HARQ feedback if requested by\n"
 	"                                                    client.\n"
-	"                                                    Default: 4 (subslots).\n";
+	"                                                    Default: 4 (subslots).\n"
+	"Following only for certification purposes - set to modem after a bootup:\n"
+	"      Note: changing all of these requires a reboot.\n"
+	"      --tx_cw_ctrl_on                Enable Continuous Wave (CW) TX.\n"
+	"      --tx_cw_ctrl_off               Disable Continuous Wave (CW) TX. Default.\n"
+	"      --tx_cw_ctrl_channel <int>,    Channel/carrier for the CW TX.\n"
+	"                                     Default: 1665.\n"
+	"      --tx_cw_ctrl_pwr_dbm <int>,    TX power for CW TX.\n"
+	"                                     Default: as with --tx_pwr.\n"
+	"       --tx_stf_cover_seq_on,        Enable STF cover sequence on TX. Default.\n"
+	"       --tx_stf_cover_seq_off,       Disable STF cover sequence on TX.\n"
+	"       --rx_stf_cover_seq_on,        Enable STF cover sequence on RX. Default.\n"
+	"       --rx_stf_cover_seq_off,       Disable STF cover sequence on RX.\n"
+	"       --nw_id_valid_on,             Default. Network id validation enabled.\n"
+	"       --nw_id_valid_off,            Allow network id without validation.\n"
+	"                                     Might be needed for RX op to match tester vectors.\n";
+
 
 /* Specifying the expected options (both long and short): */
-static struct option long_options_settings[] = {
-	{"nw_id", required_argument, 0, 'n'},
-	{"tx_id", required_argument, 0, 't'},
-	{"band_nbr", required_argument, 0, 'b'},
-	{"sche_delay", required_argument, 0, 'd'},
-	{"radio_mode", required_argument, 0, 'm'},
-	{"rx_exp_rssi_level", required_argument, 0, DECT_SHELL_SETT_COMMON_RX_EXP_RSSI_LEVEL},
-	{"tx_pwr", required_argument, 0, DECT_SHELL_SETT_COMMON_TX_PWR},
-	{"tx_mcs", required_argument, 0, DECT_SHELL_SETT_COMMON_TX_MCS},
-	{"mdm_init_harq_process_count", required_argument, 0,
+static struct sys_getopt_option long_options_settings[] = {
+	{"nw_id", sys_getopt_required_argument, 0, 'n'},
+	{"tx_id", sys_getopt_required_argument, 0, 't'},
+	{"band_nbr", sys_getopt_required_argument, 0, 'b'},
+	{"sche_delay", sys_getopt_required_argument, 0, 'd'},
+	{"radio_mode", sys_getopt_required_argument, 0, 'm'},
+	{"rx_exp_rssi_level", sys_getopt_required_argument, 0,
+	 DECT_SHELL_SETT_COMMON_RX_EXP_RSSI_LEVEL},
+	{"tx_pwr", sys_getopt_required_argument, 0, DECT_SHELL_SETT_COMMON_TX_PWR},
+	{"tx_mcs", sys_getopt_required_argument, 0, DECT_SHELL_SETT_COMMON_TX_MCS},
+	{"mdm_init_harq_process_count", sys_getopt_required_argument, 0,
 	 DECT_SHELL_SETT_COMMON_HARQ_MDM_PROCESS_COUNT},
-	{"mdm_init_harq_expiry_time_us", required_argument, 0,
+	{"mdm_init_harq_expiry_time_us", sys_getopt_required_argument, 0,
 	 DECT_SHELL_SETT_COMMON_HARQ_MDM_EXPIRY_TIME},
-	{"sche_harq_feedback_rx_delay_subslots", required_argument, 0,
+	{"sche_harq_feedback_rx_delay_subslots", sys_getopt_required_argument, 0,
 	 DECT_SHELL_SETT_COMMON_SUBSLOT_COUNT_HARQ_FEEDBACK_RX_DELAY_SLOT_COUNT},
-	{"sche_harq_feedback_rx_subslots", required_argument, 0,
+	{"sche_harq_feedback_rx_subslots", sys_getopt_required_argument, 0,
 	 DECT_SHELL_SETT_COMMON_SUBSLOT_COUNT_HARQ_FEEDBACK_RX},
-	{"sche_harq_feedback_tx_delay_subslots", required_argument, 0,
+	{"sche_harq_feedback_tx_delay_subslots", sys_getopt_required_argument, 0,
 	 DECT_SHELL_SETT_COMMON_SUBSLOT_COUNT_HARQ_FEEDBACK_TX_DELAY_SLOT_COUNT},
-	{"rssi_scan_time", required_argument, 0, DECT_SHELL_SETT_COMMON_RSSI_SCAN_TIME_PER_CHANNEL},
-	{"rssi_scan_free_th", required_argument, 0,
+	{"rssi_scan_time", sys_getopt_required_argument, 0,
+	 DECT_SHELL_SETT_COMMON_RSSI_SCAN_TIME_PER_CHANNEL},
+	{"rssi_scan_free_th", sys_getopt_required_argument, 0,
 	 DECT_SHELL_SETT_COMMON_RSSI_SCAN_FREE_THRESHOLD},
-	{"rssi_scan_busy_th", required_argument, 0,
+	{"rssi_scan_busy_th", sys_getopt_required_argument, 0,
 	 DECT_SHELL_SETT_COMMON_RSSI_SCAN_BUSY_THRESHOLD},
-	{"rssi_scan_suitable_percent", required_argument, 0,
+	{"rssi_scan_suitable_percent", sys_getopt_required_argument, 0,
 	 DECT_SHELL_SETT_COMMON_RSSI_SCAN_SUITABLE_PERCENT},
-	{"reset", no_argument, 0, DECT_SHELL_SETT_RESET_ALL},
-	{"read", no_argument, 0, 'r'},
+	{"tx_cw_ctrl_on", sys_getopt_no_argument, 0, DECT_SHELL_SETT_CERT_TX_CW_CTRL_ON},
+	{"tx_cw_ctrl_off", sys_getopt_no_argument, 0, DECT_SHELL_SETT_CERT_TX_CW_CTRL_OFF},
+	{"tx_cw_ctrl_channel", sys_getopt_required_argument, 0,
+	 DECT_SHELL_SETT_CERT_TX_CW_CTRL_CHANNEL},
+	{"tx_cw_ctrl_pwr_dbm", sys_getopt_required_argument, 0,
+	 DECT_SHELL_SETT_CERT_TX_CW_CTRL_PWR_DBM},
+	{"tx_stf_cover_seq_on", sys_getopt_no_argument, 0,
+	 DECT_SHELL_SETT_CERT_TX_STF_COVER_SEQ_ON},
+	{"tx_stf_cover_seq_off", sys_getopt_no_argument, 0,
+	 DECT_SHELL_SETT_CERT_TX_STF_COVER_SEQ_OFF},
+	{"rx_stf_cover_seq_on", sys_getopt_no_argument, 0,
+	 DECT_SHELL_SETT_CERT_RX_STF_COVER_SEQ_ON},
+	{"rx_stf_cover_seq_off", sys_getopt_no_argument, 0,
+	 DECT_SHELL_SETT_CERT_RX_STF_COVER_SEQ_OFF},
+	{"nw_id_valid_on", sys_getopt_no_argument, 0, DECT_SHELL_SETT_CERT_NW_ID_VALIDATION_ON},
+	{"nw_id_valid_off", sys_getopt_no_argument, 0, DECT_SHELL_SETT_CERT_NW_ID_VALIDATION_OFF},
+	{"help", sys_getopt_no_argument, 0, 'h'},
+	{"reset", sys_getopt_no_argument, 0, DECT_SHELL_SETT_RESET_ALL},
+	{"read", sys_getopt_no_argument, 0, 'r'},
 	{0, 0, 0, 0}};
 
 static void dect_phy_sett_cmd_print(struct dect_phy_settings *dect_sett)
@@ -1702,6 +1809,22 @@ static void dect_phy_sett_cmd_print(struct dect_phy_settings *dect_sett)
 		   dect_sett->harq.harq_feedback_rx_subslot_count);
 	desh_print("  HARQ feedback TX delay (subslots)........................%d",
 		   dect_sett->harq.harq_feedback_tx_delay_subslot_count);
+	desh_print("Certification settings:");
+	if (dect_sett->cert.tx_cw_ctrl_on) {
+		desh_print("  Continuous Wave (CW) TX..................................Enabled");
+		desh_print("  CW TX channel/carrier....................................%d",
+			   dect_sett->cert.tx_cw_ctrl_channel);
+		desh_print("  CW TX power (dBm)........................................%d",
+			   dect_sett->cert.tx_cw_ctrl_pwr_dbm);
+	} else {
+		desh_print("  Continuous Wave (CW) TX..................................Disabled");
+	}
+	desh_print("  STF cover sequence on TX.................................%s",
+		   dect_sett->cert.tx_stf_cover_seq_on ? "Enabled" : "Disabled");
+	desh_print("  STF cover sequence on RX.................................%s",
+		   dect_sett->cert.rx_stf_cover_seq_on ? "Enabled" : "Disabled");
+	desh_print("  Network id validation....................................%s",
+		   dect_sett->cert.network_id_validation_on ? "Enabled" : "Disabled");
 }
 
 static int dect_phy_sett_cmd(const struct shell *shell, size_t argc, char **argv)
@@ -1709,8 +1832,7 @@ static int dect_phy_sett_cmd(const struct shell *shell, size_t argc, char **argv
 	struct dect_phy_settings current_settings;
 	struct dect_phy_settings newsettings;
 
-	optreset = 1;
-	optind = 1;
+	sys_getopt_init();
 
 	int ret = 0;
 
@@ -1723,7 +1845,7 @@ static int dect_phy_sett_cmd(const struct shell *shell, size_t argc, char **argv
 	dect_common_settings_read(&current_settings);
 	newsettings = current_settings;
 
-	while ((opt = getopt_long(
+	while ((opt = sys_getopt_long(
 			argc, argv, "m:d:n:t:b:rh", long_options_settings, &long_index)) != -1) {
 		switch (opt) {
 		case 'r': {
@@ -1732,8 +1854,9 @@ static int dect_phy_sett_cmd(const struct shell *shell, size_t argc, char **argv
 			return 0;
 		}
 		case 'n': {
-			tmp_value = shell_strtoul(optarg, 10, &ret);
-			if (ret || !dect_common_utils_32bit_network_id_validate(tmp_value)) {
+			tmp_value = shell_strtoul(sys_getopt_optarg, 10, &ret);
+			if (ret || (current_settings.cert.network_id_validation_on &&
+				    !dect_common_utils_32bit_network_id_validate(tmp_value))) {
 				desh_error("%u (0x%08x) is not a valid network id.\n"
 					   "The network ID shall be set to a value where neither\n"
 					   "the 8 LSB bits are 0x00 nor the 24 MSB bits "
@@ -1745,7 +1868,7 @@ static int dect_phy_sett_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case 'm': {
-			tmp_value = atoi(optarg);
+			tmp_value = atoi(sys_getopt_optarg);
 			newsettings.common.activate_at_startup = true;
 			if (tmp_value == 1) {
 				newsettings.common.startup_radio_mode =
@@ -1765,7 +1888,7 @@ static int dect_phy_sett_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case 't': {
-			tmp_value = shell_strtoul(optarg, 10, &ret);
+			tmp_value = shell_strtoul(sys_getopt_optarg, 10, &ret);
 			if (ret) {
 				desh_error("Give decent tx id (> 0)");
 				return -EINVAL;
@@ -1774,7 +1897,7 @@ static int dect_phy_sett_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case 'b': {
-			tmp_value = atoi(optarg);
+			tmp_value = atoi(sys_getopt_optarg);
 			if (tmp_value == 1 || tmp_value == 2 || tmp_value == 4 || tmp_value == 9 ||
 			    tmp_value == 22) {
 				newsettings.common.band_nbr = tmp_value;
@@ -1792,23 +1915,23 @@ static int dect_phy_sett_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case 'd': {
-			newsettings.scheduler.scheduling_delay_us = atoi(optarg);
+			newsettings.scheduler.scheduling_delay_us = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_SETT_COMMON_RX_EXP_RSSI_LEVEL: {
-			newsettings.rx.expected_rssi_level = atoi(optarg);
+			newsettings.rx.expected_rssi_level = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_SETT_COMMON_TX_PWR: {
-			newsettings.tx.power_dbm = atoi(optarg);
+			newsettings.tx.power_dbm = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_SETT_COMMON_TX_MCS: {
-			newsettings.tx.mcs = atoi(optarg);
+			newsettings.tx.mcs = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_SETT_COMMON_HARQ_MDM_PROCESS_COUNT: {
-			tmp_value = atoi(optarg);
+			tmp_value = atoi(sys_getopt_optarg);
 			if (tmp_value != 1 && tmp_value != 2 && tmp_value != 4 && tmp_value != 8) {
 				desh_error("Not valid HARQ process count.");
 				goto show_usage;
@@ -1817,7 +1940,7 @@ static int dect_phy_sett_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case DECT_SHELL_SETT_COMMON_HARQ_MDM_EXPIRY_TIME: {
-			tmp_value = atoi(optarg);
+			tmp_value = atoi(sys_getopt_optarg);
 			if (tmp_value <= 0 || tmp_value > 5000000) {
 				desh_error("Not valid HARQ rx buffer expiration time given.");
 				goto show_usage;
@@ -1827,23 +1950,25 @@ static int dect_phy_sett_cmd(const struct shell *shell, size_t argc, char **argv
 		}
 
 		case DECT_SHELL_SETT_COMMON_SUBSLOT_COUNT_HARQ_FEEDBACK_RX_DELAY_SLOT_COUNT: {
-			newsettings.harq.harq_feedback_rx_delay_subslot_count = atoi(optarg);
+			newsettings.harq.harq_feedback_rx_delay_subslot_count =
+				atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_SETT_COMMON_SUBSLOT_COUNT_HARQ_FEEDBACK_RX: {
-			newsettings.harq.harq_feedback_rx_subslot_count = atoi(optarg);
+			newsettings.harq.harq_feedback_rx_subslot_count = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_SETT_COMMON_SUBSLOT_COUNT_HARQ_FEEDBACK_TX_DELAY_SLOT_COUNT: {
-			newsettings.harq.harq_feedback_tx_delay_subslot_count = atoi(optarg);
+			newsettings.harq.harq_feedback_tx_delay_subslot_count =
+				atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_SETT_COMMON_RSSI_SCAN_TIME_PER_CHANNEL: {
-			newsettings.rssi_scan.time_per_channel_ms = atoi(optarg);
+			newsettings.rssi_scan.time_per_channel_ms = atoi(sys_getopt_optarg);
 			break;
 		}
 		case DECT_SHELL_SETT_COMMON_RSSI_SCAN_FREE_THRESHOLD: {
-			tmp_value = atoi(optarg);
+			tmp_value = atoi(sys_getopt_optarg);
 			if (tmp_value >= 0) {
 				desh_error("Give decent value (value < 0)");
 				return -EINVAL;
@@ -1852,7 +1977,7 @@ static int dect_phy_sett_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case DECT_SHELL_SETT_COMMON_RSSI_SCAN_BUSY_THRESHOLD: {
-			tmp_value = atoi(optarg);
+			tmp_value = atoi(sys_getopt_optarg);
 			if (tmp_value >= 0) {
 				desh_error("Give decent value (value < 0)");
 				return -EINVAL;
@@ -1861,13 +1986,77 @@ static int dect_phy_sett_cmd(const struct shell *shell, size_t argc, char **argv
 			break;
 		}
 		case DECT_SHELL_SETT_COMMON_RSSI_SCAN_SUITABLE_PERCENT: {
-			tmp_value = atoi(optarg);
+			tmp_value = atoi(sys_getopt_optarg);
 			if (tmp_value < 0 || tmp_value > 100) {
 				desh_error("Give decent value (0-100)");
 				return -EINVAL;
 			}
 			newsettings.rssi_scan.type_subslots_params.scan_suitable_percent =
 				tmp_value;
+			break;
+		}
+		case DECT_SHELL_SETT_CERT_TX_CW_CTRL_ON: {
+			newsettings.cert.tx_cw_ctrl_on = true;
+			desh_warn("Continuous Wave (CW) TX enabled. "
+				   "This is for certification purposes only, "
+				   "not for normal operation and no other operations can be done."
+				   "Requires a reboot to have an impact.");
+			break;
+		}
+		case DECT_SHELL_SETT_CERT_TX_CW_CTRL_OFF: {
+			newsettings.cert.tx_cw_ctrl_on = false;
+			desh_warn("Continuous Wave (CW) TX disabled. "
+				  "Requires a reboot to have an impact.");
+			break;
+		}
+		case DECT_SHELL_SETT_CERT_TX_CW_CTRL_CHANNEL: {
+			newsettings.cert.tx_cw_ctrl_channel = atoi(sys_getopt_optarg);
+			if (!dect_common_utils_channel_is_supported(
+				    newsettings.common.band_nbr,
+				    newsettings.cert.tx_cw_ctrl_channel, false)) {
+				desh_error("Channel %d is not supported on set band #%d.\n",
+					   newsettings.cert.tx_cw_ctrl_channel,
+					   newsettings.common.band_nbr);
+				return -1;
+			}
+			break;
+		}
+		case DECT_SHELL_SETT_CERT_TX_CW_CTRL_PWR_DBM: {
+			newsettings.cert.tx_cw_ctrl_pwr_dbm = atoi(sys_getopt_optarg);
+			break;
+		}
+		case DECT_SHELL_SETT_CERT_TX_STF_COVER_SEQ_ON: {
+			newsettings.cert.tx_stf_cover_seq_on = true;
+			desh_warn("STF cover sequence on TX enabled. "
+				  "Requires a reboot to have an impact.");
+			break;
+		}
+		case DECT_SHELL_SETT_CERT_TX_STF_COVER_SEQ_OFF: {
+			newsettings.cert.tx_stf_cover_seq_on = false;
+			desh_warn("STF cover sequence on TX disabled. "
+				  "Requires a reboot to have an impact.");
+			break;
+		}
+		case DECT_SHELL_SETT_CERT_RX_STF_COVER_SEQ_ON: {
+			newsettings.cert.rx_stf_cover_seq_on = true;
+			desh_warn("STF cover sequence on RX enabled. "
+				  "Requires a reboot to have an impact.");
+			break;
+		}
+		case DECT_SHELL_SETT_CERT_RX_STF_COVER_SEQ_OFF: {
+			newsettings.cert.rx_stf_cover_seq_on = false;
+			desh_warn("STF cover sequence on RX disabled. "
+				  "Requires a reboot to have an impact.");
+			break;
+		}
+		case DECT_SHELL_SETT_CERT_NW_ID_VALIDATION_ON: {
+			newsettings.cert.network_id_validation_on = true;
+			desh_print("Network id validation enabled.");
+			break;
+		}
+		case DECT_SHELL_SETT_CERT_NW_ID_VALIDATION_OFF: {
+			newsettings.cert.network_id_validation_on = false;
+			desh_warn("Network id validation disabled.");
 			break;
 		}
 		case DECT_SHELL_SETT_RESET_ALL: {
@@ -1878,11 +2067,11 @@ static int dect_phy_sett_cmd(const struct shell *shell, size_t argc, char **argv
 			goto show_usage;
 		case '?':
 		default:
-			desh_error("Unknown option (%s). See usage:", argv[optind - 1]);
+			desh_error("Unknown option (%s). See usage:", argv[sys_getopt_optind - 1]);
 			goto show_usage;
 		}
 	}
-	if (optind < argc) {
+	if (sys_getopt_optind < argc) {
 		desh_error("Arguments without '-' not supported: %s", argv[argc - 1]);
 		goto show_usage;
 	}

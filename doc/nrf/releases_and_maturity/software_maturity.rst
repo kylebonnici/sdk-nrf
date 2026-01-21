@@ -331,13 +331,13 @@ The following table indicates the software maturity levels of the support for ea
            - Supported
            - Supported
            - Supported
-           - Experimental
+           - Supported
            - Experimental
          * - **Bluetooth Mesh**
            - Supported
            - Supported
            - Supported
-           - Experimental
+           - Supported
            - --
          * - **DECT NR+ PHY**
            - --
@@ -714,49 +714,49 @@ The following table indicates the software maturity levels of the support for ea
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **Coded PHY (Long Range)**
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **Concurrent Roles**\ :sup:`1`
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **Data Length Extensions**
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **Advertising Extensions**
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **Periodic Advertising with Responses**
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **Periodic Advertising Sync Transfer**
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **Isochronous Channels**
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **Direction Finding**\ :sup:`3`
              - Experimental
@@ -768,158 +768,56 @@ The following table indicates the software maturity levels of the support for ea
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **Connection Subrating**
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **Channel Sounding**
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **GATT Database Hash**
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **Enhanced ATT**
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **L2CAP Connection Oriented Channels**
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **Shorter Connection Intervals**
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **Frame Space Update**
              - Supported
              - Supported
              - Supported
-             - Experimental
+             - Supported
              - Experimental
            * - **Extended Feature Set**
              - Supported
              - Supported
              - Supported
+             - Supported
              - Experimental
-             - Experimental
-
-     .. group-tab:: nRF91 Series
-
-        .. list-table:: Bluetooth features support
-           :widths: auto
-           :header-rows: 1
-
-           * -
-             - nRF9131
-             - nRF9151
-             - nRF9160
-             - nRF9161
-           * - **2 Mbps PHY**
-             - --
-             - --
-             - --
-             - --
-           * - **Coded PHY (Long Range)**
-             - --
-             - --
-             - --
-             - --
-           * - **Concurrent Roles**\ :sup:`1`
-             - --
-             - --
-             - --
-             - --
-           * - **Data Length Extensions**
-             - --
-             - --
-             - --
-             - --
-           * - **Advertising Extensions**
-             - --
-             - --
-             - --
-             - --
-           * - **Periodic Advertising with Responses**
-             - --
-             - --
-             - --
-             - --
-           * - **Periodic Advertising Sync Transfer**
-             - --
-             - --
-             - --
-             - --
-           * - **Isochronous Channels**
-             - --
-             - --
-             - --
-             - --
-           * - **Direction Finding**\ :sup:`3`
-             - --
-             - --
-             - --
-             - --
-           * - **LE Power Control**
-             - --
-             - --
-             - --
-             - --
-           * - **Connection Subrating**
-             - --
-             - --
-             - --
-             - --
-           * - **Channel Sounding**
-             - --
-             - --
-             - --
-             - --
-           * - **GATT Database Hash**
-             - --
-             - --
-             - --
-             - --
-           * - **Enhanced ATT**
-             - --
-             - --
-             - --
-             - --
-           * - **L2CAP Connection Oriented Channels**
-             - --
-             - --
-             - --
-             - --
-           * - **Shorter Connection Intervals**
-             - --
-             - --
-             - --
-             - --
-           * - **Frame Space Update**
-             - --
-             - --
-             - --
-             - --
-           * - **Extended Feature Set**
-             - --
-             - --
-             - --
-             - --
 
   | [1]: Subject to RAM availability
   | [2]: Do not support encrypting and decrypting the Isochronous Channels packets
@@ -1035,19 +933,19 @@ The following table indicates the software maturity levels of the support for ea
               - Supported
               - Supported
               - Supported
-              - Experimental
+              - Supported
               - Experimental
             * - **Multi-protocol Support**
               - Supported
               - Supported
               - Supported
-              - Experimental
+              - Supported
               - Experimental
             * - **QoS Conn Event Reports**
               - Supported
               - Supported
               - Supported
-              - Experimental
+              - Supported
               - Experimental
             * - **QoS Channel Survey**
               - Experimental
@@ -1059,45 +957,8 @@ The following table indicates the software maturity levels of the support for ea
               - Supported
               - Supported
               - Supported
+              - Supported
               - Experimental
-              - Experimental
-
-      .. tab:: nRF91 Series
-
-         .. list-table:: Proprietary Bluetooth features support
-            :widths: auto
-            :header-rows: 1
-
-            * -
-              - nRF9131
-              - nRF9151
-              - nRF9160
-              - nRF9161
-            * - **Low Latency Packet Mode**
-              - --
-              - --
-              - --
-              - --
-            * - **Multi-protocol Support**
-              - --
-              - --
-              - --
-              - --
-            * - **QoS Conn Event Reports**
-              - --
-              - --
-              - --
-              - --
-            * - **QoS Channel Survey**
-              - --
-              - --
-              - --
-              - --
-            * - **Radio Coexistence**
-              - --
-              - --
-              - --
-              - --
 
 Thread features support
 ***********************
@@ -1434,7 +1295,7 @@ The following table indicates the software maturity levels of the support for ea
 Matter features support
 ***********************
 
-.. include:: /includes/matter_wifi_nrf5340_deprecation.txt
+.. include:: /includes/matter/wifi_nrf5340_deprecation.txt
 
 The following table indicates the software maturity levels of the support for each Matter feature:
 

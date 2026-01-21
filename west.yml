@@ -50,6 +50,7 @@ manifest:
     - -bsec
     - -doc-internal
     - +optional
+    - +testing
 
   # "projects" is a list of git repositories which make up the NCS
   # source code.
@@ -64,7 +65,7 @@ manifest:
     # https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/guides/modules.html
     - name: zephyr
       repo-path: sdk-zephyr
-      revision: 4f11c2e93c3de15b754da84000727d862afd1b64
+      revision: pull/3678/head
       import:
         # In addition to the zephyr repository itself, NCS also
         # imports the contents of zephyr/west.yml at the above
@@ -143,19 +144,19 @@ manifest:
     - name: nrfxlib
       repo-path: sdk-nrfxlib
       path: nrfxlib
-      revision: 74e6bd8343293f32cd322d9bff855c7fd84cb76e
+      revision: pull/1964/head
     - name: trusted-firmware-m
       repo-path: sdk-trusted-firmware-m
       path: modules/tee/tf-m/trusted-firmware-m
-      revision: c43dd4ad5632538131ddb06efc4c664183d6c0de
+      revision: 5880bf3411c9f58b098ca25e1ad6bfd3f51ccd77
     - name: psa-arch-tests
       repo-path: sdk-psa-arch-tests
       path: modules/tee/tf-m/psa-arch-tests
-      revision: ecd6864211894fca9d3cc4d87908f7b974c2a7d4
+      revision: 6e966dfeca5886ef576bf3f8613722169014e789
     - name: matter
       repo-path: sdk-connectedhomeip
       path: modules/lib/matter
-      revision: b9ffabef417865b481d1d737c6d539ff8dab21a2
+      revision: pull/699/head
       west-commands: scripts/west/west-commands.yml
       submodules:
         - name: nlio
@@ -174,14 +175,14 @@ manifest:
     - name: nrf-802154
       repo-path: sdk-nrf-802154
       path: nrf-802154
-      revision: 69e3bfb6b806944aa76526510914ee5c1dba1ded
+      revision: 54ee3c9bd5b1179c03345e41fd069602bc980eae
       groups:
         - nrf-802154
     - name: dragoon
       # Only for internal Nordic development
       repo-path: dragoon.git
       remote: dragoon
-      revision: dbf89b7bb05209a68fe2f28b8132fb6b1e1b2368
+      revision: ab0acb05dfed8677a35f4e44db231ba4ba5307fd
       groups:
         - dragoon
     - name: cjson
@@ -195,7 +196,7 @@ manifest:
           compare-by-default: false
     - name: find-my
       repo-path: sdk-find-my
-      revision: 9080770f9a70551ef81719d7a43b4f270cef0e52
+      revision: pull/360/head
       groups:
         - find-my
     - name: azure-sdk-for-c
@@ -217,7 +218,7 @@ manifest:
           upstream-sha: 1be6ca7253133a21a1e9fe0fbb4656e17d63a936
           compare-by-default: false
     - name: libmodem
-      revision: c1056e47eda61024a6937cda5574c97667467346
+      revision: 47715f47d3739a9e3a11f9635d4c2f9fc63126f7
       groups:
         - libmodem
     - name: openthread
