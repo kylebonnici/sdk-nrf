@@ -18,6 +18,10 @@
 		zephyr,code-partition = &slot0_partition;
 	};
 
+
+
+
+	
 	leds {
 		compatible = "gpio-leds";
 		led0_green: led_0 {
